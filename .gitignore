@@ -1,2 +1,2 @@
 # Ignore backend environment files
-backend/.env
+backend/hello.env
