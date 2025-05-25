@@ -38,46 +38,34 @@ function sendMassege() {
 
 function appenMassege(sender, massege) {
     const massageElement = document.createElement('div');
-    massageElement.classList.add('message', sender); 
+    massageElement.classList.add('message', sender);
     massageElement.textContent = massege;
     Chatbot_Msg_Body.appendChild(massageElement);
-
-    // ✅ Smooth scroll to the new message
     massageElement.scrollIntoView({ behavior: "smooth", block: "end" });
 }
 
-
 async function getChatBotReply(userMessage) {
-    const apiKey = "AIzaSyDyVLa0r2xS2LXHEve1me5IrOj7jjJSSCQ";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
     try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch("http://localhost:5000/api/chat", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        parts: [{text: userMessage}],
-                    },
-                ],
-            }),
-        })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: userMessage })
+        });
 
         const data = await response.json();
 
-        if (!data.candidates || !data.candidates.length || !data.candidates[0].content || !data.candidates[0].content.parts) {
-            throw new Error("Invalid response from Gemini API");
+        if (!data.reply) {
+            throw new Error("No reply from server");
         }
 
-        const botmassege = data.candidates[0].content.parts[0].text.trim();        
-        appenMassege("bot", botmassege);
-        
-    } catch(error) {
-        console.error("Erro:", error);
+        appenMassege("bot", data.reply);
+    } catch (error) {
+        console.error("Error:", error);
         appenMassege(
             "bot",
-            "sorry, im having trouble responding. please try again."
+            "Sorry, I'm having trouble responding. Please try again."
         );
     }
 }
